@@ -19,7 +19,17 @@ let maxMessageAge: TimeInterval = 10 * 60
 // MARK: - Keychain
 
 enum Keychain {
+    // Read the token once per launch, so reconnects never hit the Keychain again.
+    private static var cache = [String: String?]()
+
     static func read(_ account: String) -> String? {
+        if let hit = cache[account] { return hit }
+        let value = readUncached(account)
+        cache[account] = value
+        return value
+    }
+
+    private static func readUncached(_ account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
@@ -49,6 +59,7 @@ enum Keychain {
             kSecAttrAccount as String: account,
         ]
         SecItemDelete(base as CFDictionary)
+        cache[account] = (value?.isEmpty ?? true) ? nil : value
         guard let value, !value.isEmpty else { return }
         var add = base
         add[kSecValueData as String] = Data(value.utf8)

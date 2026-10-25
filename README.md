@@ -39,6 +39,7 @@ Edit `.env`:
 | `NTFY_TOPIC_URL` | yes\*    | Full topic URL, e.g. `https://ntfy.example.com/email-codes`              |
 | `BUNDLE_ID`      | no       | Your own reverse-DNS id (default `com.example.code-clipboard`); also the Keychain service name |
 | `NTFY_TOKEN`     | no       | Access token for a protected topic; handed to the app once on install    |
+| `SIGN_IDENTITY`  | no       | Code-signing identity; defaults to your first Apple Development / Developer ID certificate, else ad hoc |
 
 \* If you leave it empty, the app asks for the topic URL on first launch.
 
@@ -87,7 +88,7 @@ curl -u youruser -d "123456" https://ntfy.example.com/email-codes
 ## Notes
 
 - The whole message is copied as is (trimmed). Send just the code if you want just the code on the clipboard.
-- Rebuilding changes the ad-hoc signature, so macOS may ask once to let the new build read its Keychain token.
+- `build.sh` signs with your Apple Development or Developer ID certificate if you have one (free with an Apple ID in Xcode → Settings → Accounts), or `SIGN_IDENTITY` from `.env`. Without one the app is signed ad hoc, and macOS will ask for Keychain access again after every rebuild. Click **Always Allow** once per build.
 - To uninstall: turn off **Open at Login**, quit the app, and delete `/Applications/Code Clipboard.app`.
 
 ## License
